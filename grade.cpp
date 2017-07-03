@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include <array>
-#include <map>
 
 struct Grade
 {
