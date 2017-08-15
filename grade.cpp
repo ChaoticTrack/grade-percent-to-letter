@@ -1,14 +1,14 @@
 #include <iostream>
 #include <string>
-#include <array>
+#include <vector>
 
 struct Grade
 {
-    int min, max;
+    int max;
     std::string symbol;
 };
 
-void initialize_grade(Grade *grade, std::string symbol, int min, int max);
+void initialize_grade(Grade *grade, std::string symbol, int max);
 int getInputGrade();
 
 int main()
@@ -20,31 +20,30 @@ int main()
         grade_d,
         grade_f;
 
-    initialize_grade(&grade_aplus, "A+", 91, 100);
-    initialize_grade(&grade_a, "A", 81, 90);
-    initialize_grade(&grade_b, "B", 70, 80);
-    initialize_grade(&grade_c, "C", 60, 69);
-    initialize_grade(&grade_d, "D", 50, 59);
-    initialize_grade(&grade_f, "F", 0, 49);
+    initialize_grade(&grade_f, "F", 49);
+    initialize_grade(&grade_d, "D", 59);
+    initialize_grade(&grade_c, "C", 69);
+    initialize_grade(&grade_b, "B", 80);
+    initialize_grade(&grade_a, "A", 90);
+    initialize_grade(&grade_aplus, "A+", 100);
 
-    const int kNumberOfGrades = 6;
-    std::array<Grade*, kNumberOfGrades> grades = {
-        &grade_aplus,
-        &grade_a,
-        &grade_b,
-        &grade_c,
+    std::vector<Grade*> grades = {
+        &grade_f,
         &grade_d,
-        &grade_f
+        &grade_c,
+        &grade_b,
+        &grade_a,
+        &grade_aplus
     };
 
     int inputGrade = getInputGrade();
 
     // find which range inputGrade falls into
-    for (int i = 0; i < kNumberOfGrades; i++) {
-        // if inputGrade is within range of the current grade we're checking against... notify the user
-        if (inputGrade <= grades[i]->max && inputGrade >= grades[i]->min) {
-            std::cout << "You scored " << grades[i]->symbol
-                << " (" << inputGrade << "%). ";
+    for (decltype(grades.size()) i = 0; i != grades.size(); ++i) {
+        if (inputGrade <= grades[i]->max) {
+            std::cout << "You scored " << grades[i]->symbol <<
+                " (" << inputGrade << "%). ";
+            break;
         }
     }
 
@@ -54,10 +53,9 @@ int main()
     return 0;
 }
 
-void initialize_grade(Grade *grade, std::string symbol, int min, int max)
+void initialize_grade(Grade *grade, std::string symbol, int max)
 {
     grade->symbol = symbol;
-    grade->min = min;
     grade->max = max;
     return;
 }
