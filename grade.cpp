@@ -1,18 +1,37 @@
-#include <iostream>
-#include <string>
-#include <vector>
+#include <iostream>     // cin, cout, endl, istream, cerr
+#include <stdexcept>    // domain_error
+#include <string>       // string
+#include <vector>       // vector
+
+using std::string;
+using std::vector;
+
+using std::cin;
+using std::cout;
+using std::endl;
+using std::istream;
+
+using std::cerr;
+using std::domain_error;
 
 struct Grade
 {
     int max;
-    std::string symbol;
+    string symbol;
 };
 
-void initialize_grade(Grade *grade, std::string symbol, int max);
+void initialize_grade(Grade&, string, int);
 int getInputGrade();
+istream& read(istream&, int&);
 
 int main()
 {
+    /*
+     * TODO: simplify how grades are represented, possibly without named objects?
+     * REQUIREMENTS
+     * 1. iterate through the objects to compare against input grade
+     * 2. assign them distinct properties
+    */
     Grade grade_aplus,
         grade_a,
         grade_b,
@@ -20,14 +39,15 @@ int main()
         grade_d,
         grade_f;
 
-    initialize_grade(&grade_f, "F", 49);
-    initialize_grade(&grade_d, "D", 59);
-    initialize_grade(&grade_c, "C", 69);
-    initialize_grade(&grade_b, "B", 80);
-    initialize_grade(&grade_a, "A", 90);
-    initialize_grade(&grade_aplus, "A+", 100);
+    initialize_grade(grade_f, "F", 49);
+    initialize_grade(grade_d, "D", 59);
+    initialize_grade(grade_c, "C", 69);
+    initialize_grade(grade_b, "B", 80);
+    initialize_grade(grade_a, "A", 90);
+    initialize_grade(grade_aplus, "A+", 100);
 
-    std::vector<Grade*> grades = {
+    // used to iterate through for comparison to input grade
+    vector<Grade*> grades = {
         &grade_f,
         &grade_d,
         &grade_c,
@@ -36,48 +56,55 @@ int main()
         &grade_aplus
     };
 
-    int inputGrade = getInputGrade();
+    // get input for grade until valid
+    int inputGrade;
+    while (true) {
+        try {
+            cout << "Please enter your grade as a percent." << endl;
+            read(cin, inputGrade);
+            break;
+        } catch (domain_error e) {
+            cerr << e.what() << "\n\n";
+        }
+    }
 
     // find which range inputGrade falls into
-    for (decltype(grades.size()) i = 0; i != grades.size(); ++i) {
+    typedef vector<Grade*>::size_type vec_sz;
+    for (vec_sz i = 0; i != grades.size(); ++i) {
         if (inputGrade <= grades[i]->max) {
-            std::cout << "You scored " << grades[i]->symbol <<
+            cout << "You scored " << grades[i]->symbol <<
                 " (" << inputGrade << "%). ";
             break;
         }
     }
 
     if (inputGrade == 100)
-        std::cout << "Congratulations, you got a perfect score!" << std::endl;
+        cout << "Congratulations, you got a perfect score!" << endl;
 
     return 0;
 }
 
-void initialize_grade(Grade *grade, std::string symbol, int max)
+void initialize_grade(Grade& grade, string symbol, int max)
 {
-    grade->symbol = symbol;
-    grade->max = max;
+    grade.symbol = symbol;
+    grade.max = max;
     return;
 }
 
-int getInputGrade()
+istream& read(istream& in, int& grade)
 {
-    int inputGrade = 0;
+    if (in) {
+        grade = 0;
 
-    std::cout << "Please enter your grade as a percent." << std::endl;
-    while (true) {
-        std::cout << ">> ";
-        std::cin >> inputGrade;
-        std::cout << '\n';
+        in >> grade;
 
-        if (!std::cin.good() || inputGrade < 0 || inputGrade > 100) {
-            std::cin.clear();
-            std::cin.ignore(INT_MAX, '\n');
-            std::cerr << "ERROR: Your grade must be a whole number between 0 and 100. Please try again." << std::endl;
-        } else {
-            break;
+        if (!cin.good() || grade < 0 || grade > 100) {
+            cin.clear();
+            cin.ignore(INT_MAX, '\n');
+            throw domain_error("ERROR: Your grade must be a whole number between 0 and 100. Try again.");
         }
+
     }
 
-    return inputGrade;
+    return in;
 }
